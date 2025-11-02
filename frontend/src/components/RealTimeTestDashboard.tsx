@@ -566,8 +566,8 @@ export default function RealTimeTestDashboard() {
       <Alert severity="info" sx={{ mb: 3 }}>
         <AlertTitle>Real-Time Data Testing Information</AlertTitle>
         <Typography variant="body2">
-          • <strong>Backend URL:</strong> {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend2-0-lrcn.onrender.com'}<br/>
-          • <strong>WebSocket URL:</strong> {process.env.NEXT_PUBLIC_WS_URL || 'wss://backend2-0-lrcn.onrender.com'}<br/>
+          • <strong>Backend URL:</strong> {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://nexus2-0.onrender.com'}<br/>
+          • <strong>WebSocket URL:</strong> {process.env.NEXT_PUBLIC_WS_URL || 'wss://nexus2-0.onrender.com'}<br/>
           • <strong>Connection Status:</strong> {isConnected ? '🟢 Connected' : '🔴 Disconnected'}<br/>
           • <strong>Data Source:</strong> {realDataEnabled ? 'Real cement plant operational data' : 'Simulated cement plant sensors generating realistic values'}<br/>
           • <strong>Update Frequency:</strong> Every 5 seconds via WebSocket connection<br/>

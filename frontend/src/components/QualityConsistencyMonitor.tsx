@@ -73,7 +73,7 @@ export default function QualityConsistencyMonitor({ dashboardData }: QualityCons
   const [isExpanded, setIsExpanded] = useState(true);
   const [alertsCount, setAlertsCount] = useState({ critical: 0, high: 0, medium: 0 });
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend2-0-lrcn.onrender.com';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://nexus2-0.onrender.com';
 
   // Quality thresholds for input parameters
   const qualityThresholds = {
