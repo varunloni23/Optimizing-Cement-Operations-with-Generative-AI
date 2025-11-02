@@ -72,12 +72,68 @@ export default function AIAssistant({ dashboardData }: AIAssistantProps) {
       handleOptimization(objective);
     };
 
+    const handlePredefinedQuestion = async (event: CustomEvent) => {
+      const question = event.detail?.question;
+      console.log('Received predefined question:', question);
+      if (question && !isLoading) {
+        // Add user message
+        const userMessage: Message = {
+          id: Date.now().toString(),
+          text: question,
+          sender: 'user',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setIsLoading(true);
+
+        // Send to AI
+        try {
+          const response = await fetch(`${backendUrl}/api/ai/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: question,
+              context: dashboardData
+            }),
+          });
+
+          const data = await response.json();
+          
+          const aiMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: data.response || data.message || 'I apologize, but I encountered an issue processing your question.',
+            sender: 'ai',
+            timestamp: new Date(),
+            recommendations: data.recommendations
+          };
+
+          setMessages(prev => [...prev, aiMessage]);
+        } catch (error) {
+          console.error('Error sending predefined question:', error);
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: 'I apologize, but I\'m having trouble connecting to the AI service. Please make sure the backend is running and try again.',
+            sender: 'ai',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
     window.addEventListener('triggerQualityAnalysis', handleQualityAnalysisEvent);
     window.addEventListener('triggerOptimization', handleOptimizationEvent as EventListener);
+    window.addEventListener('selectPredefinedQuestion', handlePredefinedQuestion as unknown as EventListener);
 
     return () => {
       window.removeEventListener('triggerQualityAnalysis', handleQualityAnalysisEvent);
       window.removeEventListener('triggerOptimization', handleOptimizationEvent as EventListener);
+      window.removeEventListener('selectPredefinedQuestion', handlePredefinedQuestion as unknown as EventListener);
     };
   }, []); // Remove dependencies to avoid hoisting issues
 
@@ -558,6 +614,7 @@ export default function AIAssistant({ dashboardData }: AIAssistantProps) {
         <IconButton 
           onClick={handleSendMessage}
           disabled={!inputText.trim() || isLoading}
+          aria-label="Send message"
           sx={{ 
             ml: 1,
             color: '#00E5FF',

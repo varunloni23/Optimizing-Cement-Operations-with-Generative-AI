@@ -54,7 +54,7 @@ import QualityConsistencyMonitor from '../components/QualityConsistencyMonitor';
 import SystemPromptConfig from '../components/SystemPromptConfig';
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Dashboard, color: '#00E5FF' },
+  { id: 'looker-studio', label: 'Looker Studio', icon: Dashboard, color: '#00E5FF' },
   { id: 'analytics', label: 'Analytics', icon: Analytics, color: '#40C4FF' },
   { id: 'quality-consistency', label: 'Quality Monitor', icon: Science, color: '#FF6B35' },
   { id: 'ai-assistant', label: 'AI Assistant', icon: SmartToy, color: '#FF6B35' },
@@ -68,7 +68,7 @@ export default function FuturisticDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [testMode, setTestMode] = useState(false);
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState('looker-studio');
   // const [socket, setSocket] = useState<Socket | null>(null); // Remove unused socket
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
@@ -84,8 +84,8 @@ export default function FuturisticDashboard() {
     // For now, we'll show different views in the console
     // In a full implementation, these would route to different components
     switch (itemId) {
-      case 'dashboard':
-        console.log('Showing Dashboard view');
+      case 'looker-studio':
+        console.log('Showing Looker Studio view - AI-powered operational insights');
         break;
       case 'analytics':
         console.log('Showing Analytics view - charts and data analysis');
@@ -910,8 +910,155 @@ export default function FuturisticDashboard() {
           </Box>
         </>
       );
-    } else if (activeView === 'dashboard') {
-      // Return the main dashboard content
+    } else if (activeView === 'looker-studio') {
+      // Looker Studio - AI-powered operational insights with predefined questions
+      const predefinedQuestions = [
+        {
+          category: "Temperature & Kiln Operations",
+          questions: [
+            "What is the optimal burning zone temperature target given the current raw mix chemistry (e.g., LSF, silica modulus) and fuel type being used?",
+            "An isolated hot spot has appeared on the kiln shell at location [X]. What is the recommended immediate action and potential underlying cause (e.g., refractory damage, flame shape issue)?",
+            "The kiln inlet temperature is consistently trending down. Based on current data (ID fan speed, fuel rate, feed rate), what adjustments should be made to restore stability?",
+            "How do I recover the kiln from a 'cold' condition safely and efficiently, and what control actions should I prioritize?"
+          ]
+        },
+        {
+          category: "Clinker Quality & Material Chemistry",
+          questions: [
+            "We are experiencing high free lime (fCaO) content in the clinker. Is this due to underburning or an over-limed raw mix, and what specific operational changes do you advise?",
+            "What are the early warning signs the system is detecting for potential ring formation in the kiln, and what actions can prevent it from developing?"
+          ]
+        },
+        {
+          category: "Fuel & Combustion Efficiency",
+          questions: [
+            "Based on current operational parameters, what is the optimal fuel-to-air ratio to ensure complete combustion and minimize heat loss through exhaust gases?",
+            "How can I adjust the burner settings (e.g., flame length, intensity) to achieve a more efficient heat transfer to the material and extend refractory life?",
+            "We plan to introduce a new alternative fuel with a different calorific value. How should I adjust the main burner and calciner fuel rates and air flows to maintain stable kiln conditions?",
+            "What is the projected impact on specific energy consumption if I increase the secondary air temperature by 10°C, and what process changes are needed to achieve this?"
+          ]
+        },
+        {
+          category: "Predictive Insights & Planning",
+          questions: [
+            "Are there any predicted temperature anomalies or equipment failures (e.g., cooling fans, sensors) in the next 24 hours based on real-time sensor data analysis?",
+            "What maintenance activities should be scheduled during the next planned downtime to address current refractory wear patterns identified by thermal monitoring?",
+            "How can I optimize the clinker cooling process to achieve the desired mineralogical composition (alite formation) while maximizing heat recovery back to the kiln system?"
+          ]
+        },
+        {
+          category: "Long-term Optimization",
+          questions: [
+            "What were the key temperature-related process deviations during yesterday's shift, and how did they impact clinker quality and energy efficiency?",
+            "Which raw material quality parameter (e.g., moisture content, particle size) is currently causing the most temperature instability in the kiln, and how can we compensate?"
+          ]
+        }
+      ];
+
+      return (
+        <>
+          {/* Looker Studio Header */}
+          <Box sx={{ mb: 4 }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                background: 'linear-gradient(135deg, #00E5FF 0%, #40C4FF 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: 700,
+                mb: 1
+              }}
+            >
+              🔍 Looker Studio
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#A0AEC0', mb: 3 }}>
+              AI-Powered Operational Insights & Expert Guidance
+            </Typography>
+          </Box>
+
+          {/* AI Assistant with Predefined Questions */}
+          <Box sx={{ mb: 4 }}>
+            <Paper sx={{ 
+              p: 3,
+              background: 'linear-gradient(135deg, #1A1F2E 0%, #242B3D 100%)',
+              border: '1px solid rgba(0, 229, 255, 0.2)',
+              borderRadius: 2
+            }}>
+              <Typography variant="h6" sx={{ color: '#00E5FF', fontWeight: 600, mb: 3 }}>
+                💡 Expert AI Assistant
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#A0AEC0', mb: 3 }}>
+                Select a question below or ask your own to get AI-powered insights for your cement plant operations.
+              </Typography>
+              
+              {/* Predefined Questions by Category */}
+              {predefinedQuestions.map((category, categoryIndex) => (
+                <Box key={categoryIndex} sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    sx={{ 
+                      color: '#40C4FF', 
+                      fontWeight: 600, 
+                      mb: 2,
+                      fontSize: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1
+                    }}
+                  >
+                    <Box sx={{ 
+                      width: 8, 
+                      height: 8, 
+                      borderRadius: '50%', 
+                      background: 'linear-gradient(135deg, #00E5FF 0%, #40C4FF 100%)' 
+                    }} />
+                    {category.category}
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pl: 2 }}>
+                    {category.questions.map((question, questionIndex) => (
+                      <Card 
+                        key={questionIndex}
+                        sx={{ 
+                          background: 'rgba(0, 229, 255, 0.05)',
+                          border: '1px solid rgba(0, 229, 255, 0.1)',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            background: 'rgba(0, 229, 255, 0.1)',
+                            border: '1px solid rgba(0, 229, 255, 0.3)',
+                            transform: 'translateX(8px)'
+                          }
+                        }}
+                        onClick={() => {
+                          // This will trigger the AI Assistant to answer the question
+                          const event = new CustomEvent('selectPredefinedQuestion', { 
+                            detail: { question } 
+                          });
+                          window.dispatchEvent(event);
+                        }}
+                      >
+                        <CardContent sx={{ p: 2 }}>
+                          <Typography variant="body2" sx={{ color: '#E0E6ED', lineHeight: 1.6 }}>
+                            {question}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </Box>
+                </Box>
+              ))}
+            </Paper>
+          </Box>
+
+          {/* AI Assistant Component */}
+          <Box sx={{ mb: 4 }}>
+            <AIAssistant />
+          </Box>
+        </>
+      );
+    } else if (activeView === 'dashboard-old') {
+      // Old dashboard content (keeping as backup)
       return (
         <>
           {/* Enhanced KPI Cards */}
