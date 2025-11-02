@@ -54,7 +54,7 @@ interface InputMonitoringData {
   kiln_temperature: number;
   raw_mill_power: number;
   cement_mill_power: number;
-  raw_meal_flow: number;
+  raw_mill_flow: number;
   alternative_fuel_rate: number;
   clinker_temperature: number;
   quality_score: number;
@@ -73,14 +73,14 @@ export default function QualityConsistencyMonitor({ dashboardData }: QualityCons
   const [isExpanded, setIsExpanded] = useState(true);
   const [alertsCount, setAlertsCount] = useState({ critical: 0, high: 0, medium: 0 });
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://cement-line.onrender.com';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend2-0-lrcn.onrender.com';
 
   // Quality thresholds for input parameters
   const qualityThresholds = {
     kiln_temperature: { min: 1450, max: 1500, optimal: 1475 },
     raw_mill_power: { min: 2800, max: 3000, optimal: 2900 },
     cement_mill_power: { min: 3100, max: 3300, optimal: 3200 },
-    raw_meal_flow: { min: 2800, max: 3100, optimal: 2950 },
+    raw_mill_flow: { min: 2800, max: 3100, optimal: 2950 },
     alternative_fuel_rate: { min: 20, max: 35, optimal: 28 },
     clinker_temperature: { min: 1100, max: 1200, optimal: 1150 }
   };
@@ -98,7 +98,7 @@ export default function QualityConsistencyMonitor({ dashboardData }: QualityCons
       kiln_temperature: currentParams.kiln_temperature,
       raw_mill_power: currentParams.raw_mill_power,
       cement_mill_power: currentParams.cement_mill_power,
-      raw_meal_flow: currentParams.raw_meal_flow,
+      raw_mill_flow: currentParams.raw_mill_flow,
       alternative_fuel_rate: currentParams.alternative_fuel_rate,
       clinker_temperature: currentParams.clinker_temperature,
       quality_score: dashboardData.plant_overview.quality_score_avg

@@ -40,7 +40,15 @@ import io from 'socket.io-client';
 import { DashboardData, SensorReading } from '../types/models';
 import { buildApiUrl, buildWsUrl } from '../config/api';
 
-const socket = io(buildWsUrl());
+const socket = io(buildWsUrl(), {
+  transports: ['polling', 'websocket'],
+  timeout: 30000,
+  reconnection: true,
+  reconnectionDelay: 2000,
+  reconnectionAttempts: 10,
+  secure: true,
+  rejectUnauthorized: false
+});
 
 interface DataPoint {
   timestamp: string;
@@ -73,17 +81,28 @@ export default function RealTimeTestDashboard() {
   // Remove unused dataRateHistory variable
 
   useEffect(() => {
+    console.log('🔌 Setting up WebSocket connection to:', buildWsUrl());
+    
     // Connection events
     socket.on('connect', () => {
       setIsConnected(true);
       setConnectionTime(new Date());
-      console.log('✅ Real-time connection established');
+      console.log('✅ Real-time WebSocket connection established');
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (reason) => {
       setIsConnected(false);
       setConnectionTime(null);
-      console.log('❌ Real-time connection lost');
+      console.log('❌ Real-time WebSocket connection lost. Reason:', reason);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('🔴 WebSocket connection error:', error);
+      setIsConnected(false);
+    });
+
+    socket.on('error', (error) => {
+      console.error('🔴 WebSocket error:', error);
     });
 
     // Data stream
@@ -142,18 +161,38 @@ export default function RealTimeTestDashboard() {
   // Real data management functions
   const loadRealData = async () => {
     try {
+      console.log('🔄 Loading real data from:', buildApiUrl('/api/real-data/load'));
       const response = await fetch(buildApiUrl('/api/real-data/load'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dataType: 'sample' })
       });
+      
+      console.log('📡 Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+      
       const result = await response.json();
+      console.log('✅ Real data loaded successfully:', result);
+      
       if (result.success) {
-        console.log('Real data loaded:', result);
         await checkRealDataStatus();
+      } else {
+        console.warn('⚠️ Backend returned success=false:', result);
       }
     } catch (error) {
-      console.error('Error loading real data:', error);
+      console.error('❌ Error loading real data:', error);
+      if (error instanceof Error) {
+        console.error('📍 Full error details:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        });
+      } else {
+        console.error('📍 Unknown error type:', error);
+      }
     }
   };
 
@@ -174,14 +213,30 @@ export default function RealTimeTestDashboard() {
 
   const checkRealDataStatus = async () => {
     try {
+      console.log('🔍 Checking real data status from:', buildApiUrl('/api/real-data/status'));
       const response = await fetch(buildApiUrl('/api/real-data/status'));
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+      
       const result = await response.json();
+      console.log('📊 Real data status response:', result);
+      
       if (result.success) {
         setRealDataStatus(result.data);
         setRealDataEnabled(result.data.realDataEnabled);
+      } else {
+        console.warn('⚠️ Real data status check returned success=false:', result);
       }
     } catch (error) {
-      console.error('Error checking real data status:', error);
+      console.error('❌ Error checking real data status:', error);
+      if (error instanceof Error) {
+        console.error('📍 Status check error details:', {
+          message: error.message,
+          name: error.name
+        });
+      }
     }
   };
 
@@ -511,8 +566,8 @@ export default function RealTimeTestDashboard() {
       <Alert severity="info" sx={{ mb: 3 }}>
         <AlertTitle>Real-Time Data Testing Information</AlertTitle>
         <Typography variant="body2">
-          • <strong>Backend URL:</strong> {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://cement-line.onrender.com'}<br/>
-          • <strong>WebSocket URL:</strong> {process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}<br/>
+          • <strong>Backend URL:</strong> {process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend2-0-lrcn.onrender.com'}<br/>
+          • <strong>WebSocket URL:</strong> {process.env.NEXT_PUBLIC_WS_URL || 'wss://backend2-0-lrcn.onrender.com'}<br/>
           • <strong>Connection Status:</strong> {isConnected ? '🟢 Connected' : '🔴 Disconnected'}<br/>
           • <strong>Data Source:</strong> {realDataEnabled ? 'Real cement plant operational data' : 'Simulated cement plant sensors generating realistic values'}<br/>
           • <strong>Update Frequency:</strong> Every 5 seconds via WebSocket connection<br/>

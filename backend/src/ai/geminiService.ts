@@ -46,10 +46,17 @@ export class GeminiService {
     plantContext?: ProcessParameters
   ): Promise<GeminiResponse> {
     try {
+      console.log('🔍 askGemini called with question:', question);
+      
       const systemPrompt = this.buildSystemPrompt();
       const contextualPrompt = this.buildContextualPrompt(question, dashboardData, plantContext);
       
-      const response = await this.callGeminiAPI(systemPrompt + '\n\n' + contextualPrompt);
+      const fullPrompt = systemPrompt + '\n\n' + contextualPrompt;
+      console.log('📤 Full prompt being sent to Gemini (first 200 chars):', fullPrompt.substring(0, 200));
+      
+      const response = await this.callGeminiAPI(fullPrompt);
+      
+      console.log('📥 Gemini response received:', response.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 150));
       
       return this.parseGeminiResponse(response);
     } catch (error) {
@@ -207,404 +214,97 @@ Keep responses concise but comprehensive, suitable for plant operators and engin
   }
 
   /**
-   * Call Gemini API (mock implementation for demo)
+   * Call Gemini API
    */
   private async callGeminiAPI(prompt: string): Promise<any> {
-    // Enhanced demo responses that handle various user inputs
-    // In production, this would make actual API calls to Gemini
-    
-    const userInput = prompt.toLowerCase();
-    
-    // Handle optimization-related queries
-    if (userInput.includes('optimization') || userInput.includes('optimize') || userInput.includes('improve')) {
+    try {
+      console.log('🌐 Making API call to Gemini...');
+      
+      // Make actual API call to Google Gemini
+      const response = await fetch(this.baseURL + `?key=${this.apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          },
+          safetySettings: [
+            {
+              category: 'HARM_CATEGORY_HARASSMENT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_HATE_SPEECH',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            },
+            {
+              category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+              threshold: 'BLOCK_MEDIUM_AND_ABOVE'
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Gemini API error response:', errorText);
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json() as any;
+      
+      // Check if response has expected structure
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+        console.error('Unexpected Gemini API response structure:', JSON.stringify(data));
+        throw new Error('Invalid response structure from Gemini API');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error calling Gemini API:', error);
+      
+      // Fallback to a generic response if API call fails
       return {
         candidates: [{
           content: {
             parts: [{
-              text: `Based on the current operational data, here are the top optimization opportunities:
+              text: `I apologize, but I'm having trouble connecting to the AI service right now. 
 
-**1. Energy Optimization (Priority: High)**
-- Reduce kiln temperature by 10-15°C to 1435°C
-- Optimize air-to-fuel ratio in the burning zone
-- Expected benefit: 3-5% energy reduction (~2.8 kWh/ton savings)
+However, based on your question, I can provide general guidance:
 
-**2. Alternative Fuel Increase (Priority: Medium)**
-- Increase alternative fuel rate from current level to 30-35%
-- Focus on high-calorific waste materials
-- Expected benefit: 15% CO2 reduction, significant cost savings
+For cement plant operations, the key areas to focus on are:
+- **Process Control**: Maintaining stable kiln temperature, consistent raw meal feed, and optimal mill operations
+- **Quality Assurance**: Regular testing of cement properties, monitoring fineness and strength development
+- **Energy Efficiency**: Optimizing fuel consumption, utilizing alternative fuels, and reducing specific energy consumption
+- **Environmental Compliance**: Managing emissions, dust control, and sustainable practices
 
-**3. Mill Optimization (Priority: Medium)**
-- Adjust cement mill power distribution
-- Optimize separator efficiency
-- Expected benefit: 2-3% production increase, improved fineness control
-
-**Implementation Priority:**
-1. Start with kiln temperature optimization (immediate impact)
-2. Gradually increase alternative fuel rate (requires careful monitoring)
-3. Fine-tune mill parameters during scheduled maintenance
-
-**Monitoring Points:**
-- Watch for clinker quality changes
-- Monitor NOx emissions during fuel switching
-- Track cement strength development
-
-These optimizations could deliver 15-25% energy savings and significant environmental benefits.`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle temperature-related queries
-    if (userInput.includes('temperature') || userInput.includes('kiln') || userInput.includes('hot') || userInput.includes('heat')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Kiln Temperature Analysis:**
-
-**Current Status:** The kiln is operating at optimal temperature range (1450-1455°C).
-
-**Key Insights:**
-- Current temperature promotes proper clinker formation
-- C3S (alite) formation is optimized for strength development
-- Energy efficiency is within acceptable parameters
-
-**Temperature Management Recommendations:**
-1. **Fine-tune fuel flow:** Adjust primary and secondary fuel distribution
-2. **Monitor air-to-fuel ratio:** Maintain optimal combustion efficiency
-3. **Check raw meal feed rate:** Ensure consistent material flow
-4. **Inspect refractory condition:** Look for hot spots or wear
-
-**Temperature Trend Monitoring:**
-- Target range: 1440-1460°C for optimal clinker quality
-- Avoid frequent fluctuations (±10°C) to prevent thermal stress
-- Monitor burning zone temperature profile regularly
-
-**Impact on Production:**
-- Proper temperature control ensures consistent clinker quality
-- Prevents over-burning and reduces energy waste
-- Maintains refractory life and reduces maintenance costs`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle quality-related queries
-    if (userInput.includes('quality') || userInput.includes('strength') || userInput.includes('cement') || userInput.includes('fineness')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Quality Analysis & Recommendations:**
-
-**Current Quality Status:**
-- Compressive strength: Within specifications
-- Fineness: Optimal for performance and energy efficiency
-- Chemical composition: Balanced for durability
-
-**Quality Optimization Strategies:**
-1. **Cement Fineness Control:**
-   - Current Blaine: 350-370 m²/kg (optimal range)
-   - Adjust separator efficiency for consistent particle size distribution
-   - Monitor mill ventilation and grinding media condition
-
-2. **Strength Development:**
-   - C3S content optimization for early strength
-   - Gypsum dosage adjustment for setting time control
-   - Limestone addition for improved workability
-
-3. **Consistency Improvements:**
-   - Implement statistical process control (SPC)
-   - Regular raw material analysis and adjustment
-   - Automated quality control systems
-
-**Proactive Quality Measures:**
-- Real-time XRF analysis for chemistry control
-- Continuous particle size monitoring
-- Automated sampling and testing systems
-- Predictive quality modeling based on process parameters
-
-**Expected Benefits:**
-- 15% reduction in quality variation
-- Improved customer satisfaction
-- Reduced product returns and claims`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle production-related queries
-    if (userInput.includes('production') || userInput.includes('capacity') || userInput.includes('throughput') || userInput.includes('output')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Production Performance Analysis:**
-
-**Current Production Status:**
-- Operating at 85-92% of design capacity
-- Production rate: 1850-1900 TPH
-- Equipment availability: 95%+
-
-**Production Optimization Opportunities:**
-1. **Bottleneck Analysis:**
-   - Raw mill grinding capacity optimization
-   - Kiln feed preparation efficiency
-   - Cement mill finishing optimization
-
-2. **Equipment Utilization:**
-   - Implement preventive maintenance scheduling
-   - Optimize changeover times between grades
-   - Reduce unplanned downtime through predictive maintenance
-
-3. **Process Efficiency:**
-   - Balance heat and material flows
-   - Optimize mill loading and grinding media
-   - Improve separator efficiency
-
-**Throughput Enhancement Strategies:**
-- Increase alternative fuel usage to reduce energy costs
-- Implement advanced process control (APC)
-- Optimize raw mix design for easier burnability
-- Upgrade mill internals for better grinding efficiency
-
-**Expected Results:**
-- 8-12% production increase potential
-- Reduced specific energy consumption
-- Improved overall equipment effectiveness (OEE)`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle energy-related queries
-    if (userInput.includes('energy') || userInput.includes('power') || userInput.includes('electricity') || userInput.includes('fuel')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Energy Consumption Analysis:**
-
-**Current Energy Profile:**
-- Specific energy consumption: ~95 kWh/ton cement
-- Raw mill: 2850 kW (optimal loading)
-- Cement mill: 3150 kW (efficient operation)
-- Kiln thermal energy: Well-balanced
-
-**Energy Optimization Strategies:**
-1. **Thermal Energy Management:**
-   - Increase alternative fuel rate to 30-35%
-   - Optimize waste heat recovery systems
-   - Improve preheater efficiency and heat exchange
-
-2. **Electrical Energy Savings:**
-   - Install high-efficiency motors and VFDs
-   - Optimize mill operation and grinding media
-   - Implement smart load management systems
-
-3. **Process Integration:**
-   - Co-processing waste materials for fuel
-   - Heat recovery from cooler exhaust
-   - Process optimization through advanced control
-
-**Cost Reduction Opportunities:**
-- Alternative fuels: 20-25% cost reduction
-- Energy efficiency improvements: 8-15% savings
-- Peak demand management: Additional 5-8% savings
-
-**Environmental Benefits:**
-- CO2 reduction: 15-20% through fuel substitution
-- Reduced fossil fuel dependence
-- Lower overall carbon footprint`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle environmental queries
-    if (userInput.includes('environment') || userInput.includes('emission') || userInput.includes('co2') || userInput.includes('sustainability')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Environmental Performance & Sustainability:**
-
-**Current Environmental Status:**
-- CO2 emissions: 875 kg CO2/ton cement
-- NOx emissions: Within regulatory limits
-- Alternative fuel rate: 25% (industry average: 15-30%)
-
-**Emission Reduction Strategies:**
-1. **Carbon Footprint Reduction:**
-   - Increase alternative fuel usage to 35-40%
-   - Implement carbon capture pilot projects
-   - Optimize limestone/clinker ratio
-
-2. **Air Quality Management:**
-   - Advanced NOx reduction technologies (SNCR/SCR)
-   - Improved dust collection efficiency
-   - Real-time emissions monitoring
-
-3. **Circular Economy Initiatives:**
-   - Co-processing industrial waste as fuel
-   - Using recycled materials in cement production
-   - Waste heat recovery for electricity generation
-
-**Sustainability Goals:**
-- 30% CO2 reduction by 2030
-- 50% alternative fuel usage target
-- Zero waste to landfill certification
-- Water recycling and conservation programs
-
-**Regulatory Compliance:**
-- All emissions within permit limits
-- Continuous monitoring and reporting
-- Environmental management system ISO 14001 certified`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle maintenance queries
-    if (userInput.includes('maintenance') || userInput.includes('repair') || userInput.includes('equipment') || userInput.includes('breakdown')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Equipment Maintenance & Reliability:**
-
-**Current Equipment Status:**
-- Overall equipment effectiveness: 85-90%
-- Planned maintenance compliance: 95%
-- Unplanned downtime: <2% annually
-
-**Maintenance Optimization:**
-1. **Predictive Maintenance:**
-   - Vibration monitoring for rotating equipment
-   - Thermal imaging for electrical components
-   - Oil analysis for gearboxes and motors
-
-2. **Preventive Maintenance:**
-   - Scheduled inspections based on running hours
-   - Proactive replacement of wear parts
-   - Regular calibration of critical instruments
-
-3. **Condition-Based Maintenance:**
-   - Real-time monitoring of equipment health
-   - Automated alerts for parameter deviations
-   - Data-driven maintenance decisions
-
-**Critical Equipment Focus:**
-- Kiln refractory inspection and maintenance
-- Mill liners and grinding media management
-- Conveyor system reliability improvements
-- Dust collection system optimization
-
-**Maintenance Planning:**
-- Annual major overhaul scheduling
-- Spare parts inventory optimization
-- Maintenance crew training and certification
-- Digital maintenance management systems`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Handle safety queries
-    if (userInput.includes('safety') || userInput.includes('accident') || userInput.includes('hazard') || userInput.includes('risk')) {
-      return {
-        candidates: [{
-          content: {
-            parts: [{
-              text: `**Safety & Risk Management:**
-
-**Current Safety Performance:**
-- Lost Time Injury Rate: Industry-leading performance
-- Near-miss reporting: Active safety culture
-- Safety training compliance: 100%
-
-**Safety Priorities:**
-1. **Process Safety Management:**
-   - Hot work permits and confined space procedures
-   - Lock-out/tag-out (LOTO) compliance
-   - Chemical handling and storage protocols
-
-2. **Equipment Safety:**
-   - Machine guarding and safety systems
-   - Emergency stop systems functionality
-   - Personal protective equipment (PPE) requirements
-
-3. **Environmental Safety:**
-   - Dust control and respiratory protection
-   - Heat stress prevention programs
-   - Noise exposure monitoring and control
-
-**Risk Assessment Areas:**
-- High-temperature equipment operations
-- Material handling and storage
-- Electrical systems and maintenance
-- Emergency response procedures
-
-**Safety Improvements:**
-- Enhanced behavior-based safety programs
-- Digital safety management systems
-- Continuous safety training and awareness
-- Regular safety audits and inspections`
-            }]
-          }
-        }]
-      };
-    }
-
-    // Default comprehensive response for general queries
-    return {
-      candidates: [{
-        content: {
-          parts: [{
-            text: `**CementAI Nexus - Your Operational Assistant**
-
-I can help you with comprehensive cement plant optimization across multiple areas:
-
-**🔧 Process Optimization:**
-- Energy efficiency improvements
-- Production capacity optimization
-- Quality consistency enhancement
-- Equipment performance analysis
-
-**📊 Data Analysis:**
-- Real-time parameter monitoring
-- Trend analysis and forecasting
-- Anomaly detection and root cause analysis
-- KPI tracking and benchmarking
-
-**💡 Specific Areas I Can Assist With:**
+Please try your question again, or feel free to ask more specific questions about:
 - Kiln operation and temperature control
-- Mill optimization and grinding efficiency  
-- Quality control and cement properties
-- Environmental compliance and emissions
-- Maintenance planning and reliability
-- Safety protocols and risk management
+- Quality parameters and testing
+- Energy optimization strategies
+- Environmental compliance
+- Maintenance and reliability
 
-**How to Get Better Assistance:**
-Ask me specific questions like:
-- "How can I reduce energy consumption?"
-- "Analyze the current kiln temperature"
-- "What are the quality trends?"
-- "Help optimize cement mill performance"
-- "Suggest environmental improvements"
-
-I use real-time plant data to provide contextual, actionable recommendations tailored to your current operational conditions.`
-          }]
-        }
-      }]
-    };
+I'll do my best to provide detailed, context-aware recommendations based on your current plant data.`
+            }]
+          }
+        }]
+      };
+    }
   }
 
   /**

@@ -48,19 +48,16 @@ import {
 } from '@mui/icons-material';
 import io, { Socket } from 'socket.io-client';
 import { DashboardData, ProcessParameters } from '../types/models';
-import { buildWsUrl } from '../config/api';
 import AIAssistant from '../components/AIAssistant';
 import RealTimeTestDashboard from '../components/RealTimeTestDashboard';
 import QualityConsistencyMonitor from '../components/QualityConsistencyMonitor';
 import SystemPromptConfig from '../components/SystemPromptConfig';
-import ReportGenerator from '../components/ReportGenerator';
-import LookerStudio from '../components/LookerStudio';
 
 const menuItems = [
-  { id: 'looker-studio', label: 'Looker Studio', icon: SmartToy, color: '#00E5FF' },
+  { id: 'dashboard', label: 'Dashboard', icon: Dashboard, color: '#00E5FF' },
   { id: 'analytics', label: 'Analytics', icon: Analytics, color: '#40C4FF' },
   { id: 'quality-consistency', label: 'Quality Monitor', icon: Science, color: '#FF6B35' },
-  { id: 'reports', label: 'Reports', icon: Timeline, color: '#81C784' },
+  { id: 'ai-assistant', label: 'AI Assistant', icon: SmartToy, color: '#FF6B35' },
   { id: 'settings', label: 'Settings', icon: Settings, color: '#90A4AE' },
 ];
 
@@ -71,7 +68,7 @@ export default function FuturisticDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [testMode, setTestMode] = useState(false);
-  const [activeView, setActiveView] = useState('looker-studio');
+  const [activeView, setActiveView] = useState('dashboard');
   // const [socket, setSocket] = useState<Socket | null>(null); // Remove unused socket
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
@@ -96,9 +93,6 @@ export default function FuturisticDashboard() {
       case 'quality-consistency':
         console.log('Showing Quality Consistency Monitor - proactive quality corrections');
         break;
-      case 'reports':
-        console.log('Showing Reports view - report generation and analytics');
-        break;
       case 'ai-assistant':
         console.log('Showing AI Assistant view - conversational interface and quality analysis');
         break;
@@ -116,13 +110,276 @@ export default function FuturisticDashboard() {
     if (activeView === 'quality-consistency') {
       // Return dedicated Quality Consistency Monitor
       return <QualityConsistencyMonitor dashboardData={dashboardData || undefined} />;
-    } else if (activeView === 'reports') {
-      // Return dedicated Reports Generator
-      return <ReportGenerator dashboardData={dashboardData || undefined} />;
-    } else if (activeView === 'looker-studio') {
-      // Return Looker Studio View with AI Assistant
+    } else if (activeView === 'ai-assistant') {
+      // Return dedicated AI Assistant and Quality Analysis view
       return (
-        <LookerStudio />
+        <>
+          {/* AI Quality Analysis Header */}
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h4" sx={{ 
+              color: '#FF6B35', 
+              fontWeight: 700, 
+              mb: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2
+            }}>
+              <SmartToy sx={{ fontSize: 40, filter: 'drop-shadow(0 0 10px #FF6B35)' }} />
+              AI Quality Analysis & Monitoring
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Gemini-powered quality fluctuation detection and real-time optimization recommendations
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+              <Chip 
+                label="✅ Real-time Analysis Active"
+                sx={{
+                  backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                  color: '#00E5FF',
+                  fontWeight: 600
+                }}
+              />
+              <Chip 
+                label="✅ Gemini AI Connected"
+                sx={{
+                  backgroundColor: 'rgba(255, 107, 53, 0.2)',
+                  color: '#FF6B35',
+                  fontWeight: 600
+                }}
+              />
+              <Chip 
+                label="✅ Firebase Sync Ready"
+                sx={{
+                  backgroundColor: 'rgba(129, 199, 132, 0.2)',
+                  color: '#81C784',
+                  fontWeight: 600
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* AI Features Grid */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 4 }}>
+            {/* Quality Analysis Card */}
+            <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+              <Paper sx={{ 
+                p: 3, 
+                height: 300,
+                background: 'linear-gradient(135deg, #1A1F2E 0%, #242B3D 100%)',
+                border: '1px solid rgba(255, 107, 53, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 25px rgba(255, 107, 53, 0.2)',
+                  border: '1px solid rgba(255, 107, 53, 0.5)'
+                }
+              }}
+              onClick={() => {
+                const event = new CustomEvent('triggerQualityAnalysis');
+                window.dispatchEvent(event);
+              }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <WarningIcon sx={{ fontSize: 40, color: '#FF6B35', mr: 2, filter: 'drop-shadow(0 0 8px #FF6B35)' }} />
+                  <Box>
+                    <Typography variant="h5" sx={{ color: '#FF6B35', fontWeight: 700 }}>
+                      Quality Fluctuation Detection
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#A0AEC0' }}>
+                      AI-powered quality anomaly detection
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Typography variant="body1" sx={{ color: '#E0E6ED', mb: 3, lineHeight: 1.6 }}>
+                  Advanced analysis of compressive strength, fineness, and chemical composition variations. 
+                  Detects patterns that indicate quality issues before they impact production.
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#00E5FF' }}>
+                    ⚡ Real-time monitoring active
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#81C784' }}>
+                    🔍 Pattern recognition enabled
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#FFB74D' }}>
+                    📊 Historical trend analysis
+                  </Typography>
+                </Box>
+              </Paper>
+            </Box>
+
+            {/* Optimization Card */}
+            <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+              <Paper sx={{ 
+                p: 3, 
+                height: 300,
+                background: 'linear-gradient(135deg, #1A1F2E 0%, #242B3D 100%)',
+                border: '1px solid rgba(0, 229, 255, 0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 8px 25px rgba(0, 229, 255, 0.2)',
+                  border: '1px solid rgba(0, 229, 255, 0.5)'
+                }
+              }}
+              onClick={() => {
+                const event = new CustomEvent('triggerOptimization', { detail: 'quality' });
+                window.dispatchEvent(event);
+              }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <OptimizeIcon sx={{ fontSize: 40, color: '#00E5FF', mr: 2, filter: 'drop-shadow(0 0 8px #00E5FF)' }} />
+                  <Box>
+                    <Typography variant="h5" sx={{ color: '#00E5FF', fontWeight: 700 }}>
+                      AI Optimization Engine
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#A0AEC0' }}>
+                      Multi-objective process optimization
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Typography variant="body1" sx={{ color: '#E0E6ED', mb: 3, lineHeight: 1.6 }}>
+                  Intelligent recommendations for kiln temperature, mill power, and fuel rates. 
+                  Optimizes for quality, energy efficiency, production, or environmental impact.
+                </Typography>
+                
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#4CAF50' }}>
+                    🎯 Quality Focus
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#FF9800' }}>
+                    ⚡ Energy Efficiency
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#2196F3' }}>
+                    🚀 Max Production
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#81C784' }}>
+                    🌱 Environmental
+                  </Typography>
+                </Box>
+              </Paper>
+            </Box>
+
+            {/* Live Metrics Card */}
+            <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+              <Paper sx={{ 
+                p: 3, 
+                height: 300,
+                background: 'linear-gradient(135deg, #1A1F2E 0%, #242B3D 100%)',
+                border: '1px solid rgba(186, 104, 200, 0.3)'
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Timeline sx={{ fontSize: 40, color: '#BA68C8', mr: 2, filter: 'drop-shadow(0 0 8px #BA68C8)' }} />
+                  <Box>
+                    <Typography variant="h5" sx={{ color: '#BA68C8', fontWeight: 700 }}>
+                      Live Quality Metrics
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#A0AEC0' }}>
+                      Real-time quality status
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 2, background: 'rgba(0, 230, 118, 0.1)' }}>
+                    <Typography variant="h3" sx={{ color: '#00E676', fontWeight: 700 }}>
+                      {plant_overview.quality_score_avg.toFixed(1)}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#81C784' }}>
+                      Quality Score
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 2, background: 'rgba(255, 107, 53, 0.1)' }}>
+                    <Typography variant="h3" sx={{ color: '#FF6B35', fontWeight: 700 }}>
+                      {plant_overview.active_alerts_count}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#FFB74D' }}>
+                      Active Alerts
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 2, background: 'rgba(0, 229, 255, 0.1)' }}>
+                    <Typography variant="h3" sx={{ color: '#00E5FF', fontWeight: 700 }}>
+                      {plant_overview.overall_efficiency.toFixed(0)}%
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#40C4FF' }}>
+                      Efficiency
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'center', p: 2, borderRadius: 2, background: 'rgba(129, 199, 132, 0.1)' }}>
+                    <Typography variant="h3" sx={{ color: '#81C784', fontWeight: 700 }}>
+                      {((plant_overview.production_rate_current / plant_overview.production_rate_target) * 100).toFixed(0)}%
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#A4E79D' }}>
+                      Target Achievement
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+            </Box>
+          </Box>
+
+          {/* AI Assistant Interface */}
+          <Box sx={{ display: 'flex', gap: 3 }}>
+            <Box sx={{ flex: '1 1 600px', minWidth: '600px' }}>
+              {dashboardData && <AIAssistant dashboardData={dashboardData} />}
+            </Box>
+            
+            <Box sx={{ flex: '1 1 400px', minWidth: '400px' }}>
+              <Paper sx={{ 
+                p: 3, 
+                height: 450,
+                background: 'linear-gradient(135deg, #1A1F2E 0%, #242B3D 100%)',
+                border: '1px solid rgba(255, 107, 53, 0.2)'
+              }}>
+                <Typography variant="h6" sx={{ color: '#FF6B35', mb: 3, fontWeight: 600 }}>
+                  🔬 Analysis Results
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: 'calc(100% - 50px)', overflow: 'auto' }}>
+                  <Alert severity="success" sx={{ backgroundColor: 'rgba(76, 175, 80, 0.1)', border: '1px solid rgba(76, 175, 80, 0.3)' }}>
+                    <Typography variant="body2">
+                      ✅ Quality monitoring systems are active and functioning normally
+                    </Typography>
+                  </Alert>
+                  
+                  <Alert severity="info" sx={{ backgroundColor: 'rgba(0, 229, 255, 0.1)', border: '1px solid rgba(0, 229, 255, 0.3)' }}>
+                    <Typography variant="body2">
+                      🤖 Gemini AI is ready to analyze quality fluctuations and provide optimization recommendations
+                    </Typography>
+                  </Alert>
+                  
+                  <Alert severity="warning" sx={{ backgroundColor: 'rgba(255, 152, 0, 0.1)', border: '1px solid rgba(255, 152, 0, 0.3)' }}>
+                    <Typography variant="body2">
+                      ⚠️ {plant_overview.active_alerts_count > 0 ? `${plant_overview.active_alerts_count} quality alert${plant_overview.active_alerts_count > 1 ? 's' : ''} detected` : 'No quality alerts detected'}
+                    </Typography>
+                  </Alert>
+                  
+                  <Paper sx={{ p: 2, background: 'rgba(186, 104, 200, 0.05)', border: '1px solid rgba(186, 104, 200, 0.2)' }}>
+                    <Typography variant="body2" sx={{ color: '#BA68C8', fontWeight: 600, mb: 1 }}>
+                      Current Analysis Status:
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#E0E6ED', fontSize: '0.85rem' }}>
+                      • Real-time data streaming: ✅ Active<br/>
+                      • Quality trend analysis: ✅ Running<br/>
+                      • AI recommendations: ✅ Available<br/>
+                      • Firebase sync: ✅ Connected<br/>
+                      • Anomaly detection: ✅ Monitoring
+                    </Typography>
+                  </Paper>
+                  
+                  <Typography variant="caption" sx={{ color: '#A0AEC0', textAlign: 'center', mt: 2 }}>
+                    Click on the cards above or use the AI Assistant to trigger specific analyses
+                  </Typography>
+                </Box>
+              </Paper>
+            </Box>
+          </Box>
+        </>
       );
     } else if (activeView === 'analytics') {
       // Return comprehensive analytics dashboard
@@ -546,7 +803,7 @@ export default function FuturisticDashboard() {
                   
                   <Alert severity="warning" sx={{ backgroundColor: 'rgba(255, 152, 0, 0.1)', border: '1px solid rgba(255, 152, 0, 0.3)' }}>
                     <Typography variant="body2" sx={{ wordBreak: 'break-word', lineHeight: 1.4 }}>
-                      ⚡ <strong>Energy Alert:</strong> Energy consumption at {plant_overview.energy_consumption_current.toFixed(1)} kWh/t. Recommend adjusting {(current_parameters?.kiln_temperature || 0) > 1460 ? 'kiln temperature down' : 'mill speed up'} for 3% savings
+                      ⚡ <strong>Energy Alert:</strong> Energy consumption at {plant_overview.energy_consumption_current.toFixed(1)} kWh/t. Recommend adjusting {current_parameters.kiln_temperature > 1460 ? 'kiln temperature down' : 'mill speed up'} for 3% savings
                     </Typography>
                   </Alert>
                 </Box>
@@ -748,37 +1005,37 @@ export default function FuturisticDashboard() {
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Kiln Temperature</Typography>
                     <Typography variant="h6" sx={{ color: '#FFB74D', fontWeight: 700 }}>
-                      {current_parameters?.kiln_temperature?.toFixed(0) || '0'}°C
+                      {current_parameters.kiln_temperature.toFixed(0)}°C
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Raw Mill Power</Typography>
                     <Typography variant="h6" sx={{ color: '#40C4FF', fontWeight: 700 }}>
-                      {current_parameters?.raw_mill_power?.toFixed(0) || '0'} kW
+                      {current_parameters.raw_mill_power.toFixed(0)} kW
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Cement Mill Power</Typography>
                     <Typography variant="h6" sx={{ color: '#40C4FF', fontWeight: 700 }}>
-                      {current_parameters?.cement_mill_power?.toFixed(0) || '0'} kW
+                      {current_parameters.cement_mill_power.toFixed(0)} kW
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Alternative Fuel Rate</Typography>
                     <Typography variant="h6" sx={{ color: '#81C784', fontWeight: 700 }}>
-                      {current_parameters?.alternative_fuel_rate?.toFixed(1) || '0.0'}%
+                      {current_parameters.alternative_fuel_rate.toFixed(1)}%
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Raw Meal Flow</Typography>
                     <Typography variant="h6" sx={{ color: '#E0E6ED', fontWeight: 700 }}>
-                      {current_parameters?.raw_mill_flow?.toFixed(1) || '0.0'} TPH
+                      {current_parameters.raw_meal_flow.toFixed(1)} TPH
                     </Typography>
                   </Box>
                   <Box>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Exhaust Fan Speed</Typography>
                     <Typography variant="h6" sx={{ color: '#BA68C8', fontWeight: 700 }}>
-                      {current_parameters?.exhaust_fan_speed?.toFixed(0) || '0'} RPM
+                      {current_parameters.exhaust_fan_speed.toFixed(0)} RPM
                     </Typography>
                   </Box>
                 </Box>
@@ -1135,108 +1392,108 @@ export default function FuturisticDashboard() {
                   <Box sx={{ 
                     p: 2, 
                     borderRadius: 2, 
-                    background: (current_parameters?.kiln_temperature || 0) > 1470 || (current_parameters?.kiln_temperature || 0) < 1430 
+                    background: current_parameters.kiln_temperature > 1470 || current_parameters.kiln_temperature < 1430 
                       ? 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(255, 152, 0, 0.1))'
                       : 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(129, 199, 132, 0.1))',
-                    border: (current_parameters?.kiln_temperature || 0) > 1470 || (current_parameters?.kiln_temperature || 0) < 1430 
+                    border: current_parameters.kiln_temperature > 1470 || current_parameters.kiln_temperature < 1430 
                       ? '1px solid rgba(244, 67, 54, 0.4)' 
                       : '1px solid rgba(76, 175, 80, 0.4)',
                     textAlign: 'center'
                   }}>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Kiln Temp</Typography>
                     <Typography variant="h6" sx={{ 
-                      color: (current_parameters?.kiln_temperature || 0) > 1470 || (current_parameters?.kiln_temperature || 0) < 1430 ? '#F44336' : '#4CAF50',
+                      color: current_parameters.kiln_temperature > 1470 || current_parameters.kiln_temperature < 1430 ? '#F44336' : '#4CAF50',
                       fontWeight: 700,
                       fontSize: '1.2rem'
                     }}>
-                      {current_parameters?.kiln_temperature?.toFixed(0) || '0'}°C
+                      {current_parameters.kiln_temperature.toFixed(0)}°C
                     </Typography>
                     <Typography variant="caption" sx={{ 
-                      color: (current_parameters?.kiln_temperature || 0) > 1470 || (current_parameters?.kiln_temperature || 0) < 1430 ? '#FF5722' : '#81C784',
+                      color: current_parameters.kiln_temperature > 1470 || current_parameters.kiln_temperature < 1430 ? '#FF5722' : '#81C784',
                       fontSize: '0.7rem'
                     }}>
-                      {(current_parameters?.kiln_temperature || 0) > 1470 || (current_parameters?.kiln_temperature || 0) < 1430 ? 'Alert' : 'Stable'}
+                      {current_parameters.kiln_temperature > 1470 || current_parameters.kiln_temperature < 1430 ? 'Alert' : 'Stable'}
                     </Typography>
                   </Box>
                   
                   <Box sx={{ 
                     p: 2, 
                     borderRadius: 2, 
-                    background: (current_parameters?.raw_mill_power || 0) > 3000 || (current_parameters?.raw_mill_power || 0) < 2700
+                    background: current_parameters.raw_mill_power > 3000 || current_parameters.raw_mill_power < 2700
                       ? 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(255, 152, 0, 0.1))'
                       : 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(129, 199, 132, 0.1))',
-                    border: (current_parameters?.raw_mill_power || 0) > 3000 || (current_parameters?.raw_mill_power || 0) < 2700
+                    border: current_parameters.raw_mill_power > 3000 || current_parameters.raw_mill_power < 2700
                       ? '1px solid rgba(244, 67, 54, 0.4)' 
                       : '1px solid rgba(76, 175, 80, 0.4)',
                     textAlign: 'center'
                   }}>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Raw Mill</Typography>
                     <Typography variant="h6" sx={{ 
-                      color: (current_parameters?.raw_mill_power || 0) > 3000 || (current_parameters?.raw_mill_power || 0) < 2700 ? '#F44336' : '#4CAF50',
+                      color: current_parameters.raw_mill_power > 3000 || current_parameters.raw_mill_power < 2700 ? '#F44336' : '#4CAF50',
                       fontWeight: 700,
                       fontSize: '1.2rem'
                     }}>
-                      {((current_parameters?.raw_mill_power || 0) / 1000).toFixed(1)}MW
+                      {(current_parameters.raw_mill_power / 1000).toFixed(1)}MW
                     </Typography>
                     <Typography variant="caption" sx={{ 
-                      color: (current_parameters?.raw_mill_power || 0) > 3000 || (current_parameters?.raw_mill_power || 0) < 2700 ? '#FF5722' : '#81C784',
+                      color: current_parameters.raw_mill_power > 3000 || current_parameters.raw_mill_power < 2700 ? '#FF5722' : '#81C784',
                       fontSize: '0.7rem'
                     }}>
-                      {(current_parameters?.raw_mill_power || 0) > 3000 || (current_parameters?.raw_mill_power || 0) < 2700 ? 'Alert' : 'Stable'}
+                      {current_parameters.raw_mill_power > 3000 || current_parameters.raw_mill_power < 2700 ? 'Alert' : 'Stable'}
                     </Typography>
                   </Box>
                   
                   <Box sx={{ 
                     p: 2, 
                     borderRadius: 2, 
-                    background: (current_parameters?.cement_mill_power || 0) > 3400 || (current_parameters?.cement_mill_power || 0) < 3000
+                    background: current_parameters.cement_mill_power > 3400 || current_parameters.cement_mill_power < 3000
                       ? 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(255, 152, 0, 0.1))'
                       : 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(129, 199, 132, 0.1))',
-                    border: (current_parameters?.cement_mill_power || 0) > 3400 || (current_parameters?.cement_mill_power || 0) < 3000
+                    border: current_parameters.cement_mill_power > 3400 || current_parameters.cement_mill_power < 3000
                       ? '1px solid rgba(244, 67, 54, 0.4)' 
                       : '1px solid rgba(76, 175, 80, 0.4)',
                     textAlign: 'center'
                   }}>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Cement Mill</Typography>
                     <Typography variant="h6" sx={{ 
-                      color: (current_parameters?.cement_mill_power || 0) > 3400 || (current_parameters?.cement_mill_power || 0) < 3000 ? '#F44336' : '#4CAF50',
+                      color: current_parameters.cement_mill_power > 3400 || current_parameters.cement_mill_power < 3000 ? '#F44336' : '#4CAF50',
                       fontWeight: 700,
                       fontSize: '1.2rem'
                     }}>
-                      {((current_parameters?.cement_mill_power || 0) / 1000).toFixed(1)}MW
+                      {(current_parameters.cement_mill_power / 1000).toFixed(1)}MW
                     </Typography>
                     <Typography variant="caption" sx={{ 
-                      color: (current_parameters?.cement_mill_power || 0) > 3400 || (current_parameters?.cement_mill_power || 0) < 3000 ? '#FF5722' : '#81C784',
+                      color: current_parameters.cement_mill_power > 3400 || current_parameters.cement_mill_power < 3000 ? '#FF5722' : '#81C784',
                       fontSize: '0.7rem'
                     }}>
-                      {(current_parameters?.cement_mill_power || 0) > 3400 || (current_parameters?.cement_mill_power || 0) < 3000 ? 'Alert' : 'Stable'}
+                      {current_parameters.cement_mill_power > 3400 || current_parameters.cement_mill_power < 3000 ? 'Alert' : 'Stable'}
                     </Typography>
                   </Box>
                   
                   <Box sx={{ 
                     p: 2, 
                     borderRadius: 2, 
-                    background: (current_parameters?.alternative_fuel_rate || 0) > 35 || (current_parameters?.alternative_fuel_rate || 0) < 15
+                    background: current_parameters.alternative_fuel_rate > 35 || current_parameters.alternative_fuel_rate < 15
                       ? 'linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(255, 152, 0, 0.1))'
                       : 'linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(129, 199, 132, 0.1))',
-                    border: (current_parameters?.alternative_fuel_rate || 0) > 35 || (current_parameters?.alternative_fuel_rate || 0) < 15
+                    border: current_parameters.alternative_fuel_rate > 35 || current_parameters.alternative_fuel_rate < 15
                       ? '1px solid rgba(244, 67, 54, 0.4)' 
                       : '1px solid rgba(76, 175, 80, 0.4)',
                     textAlign: 'center'
                   }}>
                     <Typography variant="body2" sx={{ color: '#A0AEC0', fontSize: '0.75rem' }}>Alt Fuel Rate</Typography>
                     <Typography variant="h6" sx={{ 
-                      color: (current_parameters?.alternative_fuel_rate || 0) > 35 || (current_parameters?.alternative_fuel_rate || 0) < 15 ? '#F44336' : '#4CAF50',
+                      color: current_parameters.alternative_fuel_rate > 35 || current_parameters.alternative_fuel_rate < 15 ? '#F44336' : '#4CAF50',
                       fontWeight: 700,
                       fontSize: '1.2rem'
                     }}>
-                      {current_parameters?.alternative_fuel_rate?.toFixed(1) || '0.0'}%
+                      {current_parameters.alternative_fuel_rate.toFixed(1)}%
                     </Typography>
                     <Typography variant="caption" sx={{ 
-                      color: (current_parameters?.alternative_fuel_rate || 0) > 35 || (current_parameters?.alternative_fuel_rate || 0) < 15 ? '#FF5722' : '#81C784',
+                      color: current_parameters.alternative_fuel_rate > 35 || current_parameters.alternative_fuel_rate < 15 ? '#FF5722' : '#81C784',
                       fontSize: '0.7rem'
                     }}>
-                      {(current_parameters?.alternative_fuel_rate || 0) > 35 || (current_parameters?.alternative_fuel_rate || 0) < 15 ? 'Alert' : 'Stable'}
+                      {current_parameters.alternative_fuel_rate > 35 || current_parameters.alternative_fuel_rate < 15 ? 'Alert' : 'Stable'}
                     </Typography>
                   </Box>
                 </Box>
@@ -1384,7 +1641,6 @@ export default function FuturisticDashboard() {
     const descriptions: Record<string, string> = {
       'quality-consistency': 'Real-time input fluctuation detection with proactive quality corrections',
       'analytics': 'Advanced data analysis and performance insights', 
-      'reports': 'Generate comprehensive plant reports with charts and AI insights',
       'ai-assistant': 'AI-powered quality analysis, optimization recommendations, and conversational support',
       'settings': 'System configuration and user preferences'
     };
@@ -1392,23 +1648,21 @@ export default function FuturisticDashboard() {
   };
 
   useEffect(() => {
-    // Initialize socket connection using the WebSocket URL from config
-    const wsUrl = buildWsUrl();
-    console.log('Connecting to WebSocket:', wsUrl);
+    // Initialize socket connection using the same URL as API
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+    console.log('Connecting to backend:', backendUrl);
     
-    const newSocket = io(wsUrl, {
-      transports: ['polling', 'websocket'], // Try polling first for Render compatibility
+    const newSocket = io(backendUrl, {
+      transports: ['websocket', 'polling'],
       upgrade: true,
       rememberUpgrade: true,
-      timeout: 30000, // Increased timeout for Render
+      timeout: 20000,
       forceNew: false,
       reconnection: true,
-      reconnectionDelay: 2000, // Slightly longer delay
+      reconnectionDelay: 1000,
       reconnectionAttempts: 10,
-      reconnectionDelayMax: 10000, // Increased max delay
-      autoConnect: true,
-      secure: true, // Force secure connection
-      rejectUnauthorized: false // For development/testing
+      reconnectionDelayMax: 5000,
+      autoConnect: true
     });
 
     // setSocket(newSocket); // Remove unused socket setter

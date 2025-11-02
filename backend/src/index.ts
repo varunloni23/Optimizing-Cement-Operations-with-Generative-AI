@@ -18,6 +18,7 @@ const server = createServer(app);
 const corsOptions = {
   origin: [
     'http://localhost:3000',
+    'http://localhost:3002', // Frontend on alternate port
     'https://cement-nexus-ai.vercel.app',
     'https://cement-nexus-ai.onrender.com',
     process.env.FRONTEND_URL
@@ -530,13 +531,24 @@ app.post('/api/simulation/anomaly', (req, res) => {
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const { message } = req.body;
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📨 /api/ai/chat endpoint received request');
+    console.log('💬 Question received:', message);
+    console.log('📊 Dashboard data available:', !!latestDashboardData);
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    
     const response = await geminiService.askGemini(message, latestDashboardData);
+    
+    console.log('✅ Response generated, sending back to client');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    
     res.json({
       success: true,
       data: response,
       timestamp: new Date()
     });
   } catch (error) {
+    console.error('❌ Error in /api/ai/chat:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to process AI request',
